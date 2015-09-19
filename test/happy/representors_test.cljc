@@ -1,7 +1,7 @@
 (ns happy.representors-test
-  (:require [cljs.test :as t]
-            [happy.representors :as repr]
-            #?(:clj [clojure.test :refer [deftest is]]))
+  (:require #?(:clj [clojure.test :refer [deftest is]]
+               :cljs [cljs.test :as t])
+            [happy.representors :as repr])
   #?(:cljs (:require-macros [cljs.test :refer [deftest is]])))
 
 (deftest valid?
@@ -15,4 +15,5 @@
   (is (= repr/text-representor (repr/matching-representor {:headers {"content-type" "text/html"}} [repr/text-representor])))
   (is (= repr/text-representor (repr/matching-representor {:headers {"content-type" "text/text"}} [repr/text-representor])))
   (is (= repr/binary-representor (repr/matching-representor {:headers {"content-type" "audio/snd"}} [repr/binary-representor])))
-  (is (nil? (repr/matching-representor {:headers {"content-type" "application/unknow"}} []))))
+  (is (nil? (repr/matching-representor {:headers {"content-type" "application/unknow"}} [])))
+  (is (nil? (repr/matching-representor {} [repr/text-representor]))))

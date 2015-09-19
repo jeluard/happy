@@ -21,7 +21,7 @@
 
 (defn unserialize
   [s]
-  #?(:clj (t/read (t/reader (ByteArrayInputStream. (.getBytes s charset)) :json))
+  #?(:clj (t/read (t/reader (ByteArrayInputStream. (.getBytes ^String s ^Charset charset)) :json))
      :cljs (when-not (string/blank? s) (t/read r s))))
 
 (defn create

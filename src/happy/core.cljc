@@ -7,7 +7,9 @@
   (-send! [_ req m] "Returns a RequestHandler"))
 
 (defprotocol RequestHandler
-  (-abort [_])
+  (-abort [_]))
+
+(defprotocol ResponseHandler
   (-status [_])
   (-body [_])
   (-header [_ s])
@@ -53,7 +55,9 @@
 
 (defn apply-interceptors
   [m om v]
-  (reduce (fn [m f] (f m om)) m v))
+  (if v
+    (reduce (fn [m f] (f m om)) m v)
+    m))
 
 (defn progress
   ([t] (progress t nil))
@@ -65,30 +69,55 @@
 
 (defn finalize
   [f resp m]
-  (f (apply-interceptors resp m (:response-interceptors m))))
+  (if f
+    (f (apply-interceptors resp m (:response-interceptors m)))))
 
 (defn response
-  [rh]
-  ; TODO validate response
+  [r]
   {:type :response
-   :status (-status rh)
-   :body (-body rh)
-   :headers (-headers rh)})
+   :status (-status r)
+   :body (-body r)
+   :headers (-headers r)})
 
 (defn failure
-  [t]
-  {:type :failure
-   :termination t})
+  ([t] (failure t nil))
+  ([t s]
+   (let [m {:type :failure
+            :termination t}]
+     (if s
+       (assoc m :reason s)
+       m))))
+
+(defn validate-request!
+  [req]
+  (let [met (:method req)]
+    (if (and (#{:post :put :patch} met) (nil? (:body req)))
+      (throw (ex-info (str "Method " met " requires a body" ) req)))
+    (if (and (#{:get :head :options} met) (not (nil? (:body req))))
+      (throw (ex-info (str "Method " met " requires no body" ) {}))))
+  (if-not (every? #(and (string? (key %)) (string? (val %))) (:headers req))
+    (throw (ex-info "Headers must be a String / String map" {}))))
+
+(defn validate-options!
+  [m]
+  (if-let [c (:client m)]
+    (let [sm (-supports c)]
+      (if-let [as (:request-body-as m)]
+        (if-not ((:request-body-as sm) as)
+          (throw (ex-info (str "Unsupported :request-body-as : " as) {:m m}))))
+      (if-let [as (:response-body-as m)]
+        (if-not ((:response-body-as sm) as)
+          (throw (ex-info (str "Unsupported :response-body-as : " as) {:m m})))))
+    (throw (ex-info "No :client set" {:m m}))))
 
 (defn send!
   [req m]
-  ; TODO validate key
+  (validate-request! req)
+  (validate-options! m)
   (let [f (or (:default-option-combiner m) (:default-option-combiner @default-options) default-option-combiner)
         m (merge-with f @default-options m)
         req (apply-interceptors req m (:request-interceptors m))]
-    (if-let [c (:client m)]
-      (-send! c (dissoc req :options) (merge-with f m (:options req)))
-      (throw (ex-info "No :client set" {:m m})))))
+    (-send! (:client m) (dissoc req :options) (merge-with f (dissoc m :client) (:options req)))))
 
 (defn GET
   ([url] (GET url {}))
@@ -103,18 +132,22 @@
    (send! {:method :head :url url :headers hm} m)))
 
 (defn POST
-  ([url] (POST url nil))
   ([url b] (POST url {} b))
   ([url hm b] (POST url hm b nil))
   ([url hm b m]
    (send! {:method :post :url url :headers hm :body b} m)))
 
 (defn PUT
-  ([url] (PUT url nil))
   ([url b] (PUT url {} b))
   ([url hm b] (PUT url hm b nil))
   ([url hm b m]
    (send! {:method :put :url url :headers hm :body b} m)))
+
+(defn PATCH
+  ([url b] (PATCH url {} b))
+  ([url hm b] (PATCH url hm b nil))
+  ([url hm b m]
+   (send! {:method :patch :url url :headers hm :body b} m)))
 
 (defn DELETE
   ([url] (DELETE url {}))
