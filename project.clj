@@ -1,4 +1,4 @@
-(defproject happy "0.5.0"
+(defproject happy "0.5.1-SNAPSHOT"
   :description "Clojure(Script) HTTP async client library"
   :url "http://github.com/jeluard/happy"
   :license  {:name "Eclipse Public License"

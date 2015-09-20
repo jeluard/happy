@@ -2,9 +2,9 @@
 
 [Usage](#usage) | [Interceptor](#interceptor) | [Representor](#representor)
 
-# [![Clojars Project](http://clojars.org/happy/latest-version.svg)](http://clojars.org/happy).
+[![Clojars Project](http://clojars.org/happy/latest-version.svg)](http://clojars.org/happy).
 
-An asynchronous Clojure(Script) HTTP client with swappable implementation.
+A Clojure(Script) HTTP async client library with swappable implementation.
 
 `happy` ships with a Clojure client based on [OkHTTP](http://square.github.io/okhttp/) and a ClojureScript client based on XMLHttpRequest.
 
