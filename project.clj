@@ -5,7 +5,6 @@
              :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  ; Optional dependencies
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha" :scope "provided"]
                  [com.squareup.okhttp/okhttp "2.5.0" :scope "provided"]
                  [cheshire "5.5.0" :scope "provided"]
                  [com.cognitect/transit-clj "0.8.281" :scope "provided" :exclusions [org.msgpack/msgpack]]
