@@ -1,10 +1,10 @@
 (ns happy.interceptors)
 
 (defn default-headers-interceptor
-  [[req om :as m]]
-  (if-let [hm (get-in m [:default-headers (:method req)])]
-    [(update req :headers #(merge hm %)) om]
-    m))
+  [[req om :as v]]
+  (if-let [hm (get-in om [:default-headers (:method req)])]
+    (assoc v 0 (update req :headers #(merge hm %)))
+    v))
 
 (defn now
   []
@@ -12,6 +12,6 @@
      :cljs (.now js/window.performance)))
 
 (defn timing-interceptor
-  [[req om]]
+  [[_ om :as v]]
   (let [i (now)]
-    [req (update om :response-interceptors #(cons %2 %1) (fn [m _] (assoc m :timing (- (now) i))))]))
+    (assoc v 1 (update om :response-interceptors #(cons %2 %1) (fn [m _] (assoc m :timing (- (now) i)))))))

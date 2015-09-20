@@ -24,15 +24,14 @@
 
 (defn serialize
   [r o]
-  (assert (string? o))
   (-serialize r o))
 
 (defn as-request-interceptor
   [v]
-  (fn [[req om :as m]]
-    (if-let [r (matching-representor om v)]
-      [(update req :body #(serialize r %)) om]
-      m)))
+  (fn [[req _ :as o]]
+    (if-let [r (matching-representor req v)]
+      (assoc o 0 (update req :body #(serialize r %)))
+      o)))
 
 (defn unserialize
   [r o]
