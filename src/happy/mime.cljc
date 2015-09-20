@@ -22,7 +22,3 @@
   (if-let [su (suffix s)]
     (str (top-level s) "/" su)
     s))
-
-(defn binary?
-  [s]
-  (boolean (#{"video" "audio" "image"} (top-level s))))
