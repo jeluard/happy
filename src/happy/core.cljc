@@ -48,10 +48,18 @@
 ; Utils methods for Client implementations
 
 (defn apply-interceptors
-  [m om v]
+  [o v]
   (if v
-    (reduce (fn [m f] (f m om)) m v)
-    m))
+    (reduce (fn [o f] (f o)) o v)
+    o))
+
+(defn apply-request-interceptors
+  [req om]
+  (apply-interceptors [req om] (:request-interceptors om)))
+
+(defn apply-response-interceptors
+  [resp om]
+  (apply-interceptors resp (:response-interceptors om)))
 
 (defn progress
   ([t] (progress t nil))
@@ -64,7 +72,7 @@
 (defn finalize
   [f resp m]
   (if f
-    (f (apply-interceptors resp m (:response-interceptors m)))))
+    (f (apply-response-interceptors resp m))))
 
 (defn response
   [r]
@@ -106,12 +114,12 @@
 
 (defn send!
   [req m]
-  (validate-request! req)
-  (validate-options! m)
   (let [f (or (:default-option-combiner m) (:default-option-combiner @default-options) default-option-combiner)
-        m (merge-with f @default-options m)
-        req (apply-interceptors req m (:request-interceptors m))]
-    (-send! (:client m) (dissoc req :options) (merge-with f (dissoc m :client) (:options req)))))
+        [req m] (apply-request-interceptors req (merge-with f @default-options m))
+        c (:client m)]
+    (validate-request! req)
+    (validate-options! m)
+    (-send! c req m)))
 
 (defn GET
   ([url] (GET url {}))

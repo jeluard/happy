@@ -29,9 +29,9 @@
 
 (defn as-request-interceptor
   [v]
-  (fn [m _]
-    (if-let [r (matching-representor m v)]
-      (update m :body #(serialize r %))
+  (fn [[req om :as m]]
+    (if-let [r (matching-representor om v)]
+      [(update req :body #(serialize r %)) om]
       m)))
 
 (defn unserialize
@@ -40,10 +40,10 @@
 
 (defn as-response-interceptor
   [v]
-  (fn [m _]
-    (if-let [r (matching-representor m v)]
-      (update m :body #(unserialize r %))
-      m)))
+  (fn [resp]
+    (if-let [r (matching-representor resp v)]
+      (update resp :body #(unserialize r %))
+      resp)))
 
 (def binary-representor
   (reify Representator
