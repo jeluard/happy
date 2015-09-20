@@ -76,8 +76,8 @@
   (-abort [_] (.cancel ca) (h/finalize f (h/failure :abort) m)))
 
 (defn send!
-  [req {:keys [timeout connect-timeout read-timeout write-timeout] :as m}]
-  (let [^OkHttpClient  c (OkHttpClient.)
+  [req {:keys [okhttp-client timeout connect-timeout read-timeout write-timeout] :as m}]
+  (let [^OkHttpClient c (or okhttp-client (OkHttpClient.))
         o (create-request req)
         ^Call ca (.newCall c o)]
     (if-let [i (or timeout connect-timeout)]
@@ -95,6 +95,7 @@
     (-supports [_]
       {:timeout #{:connect :read :write}
        :request-body-as #{:string :byte-array :file}
-       :response-body-as #{:string :byte-array :stream}})
+       :response-body-as #{:string :byte-array :stream}
+       :extra-options #{:okhttp-client}})
     (-send! [_ req m]
       (send! req m))))
