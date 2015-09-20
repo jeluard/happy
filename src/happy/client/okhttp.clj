@@ -80,9 +80,11 @@
   (let [^OkHttpClient  c (OkHttpClient.)
         o (create-request req)
         ^Call ca (.newCall c o)]
-    (when (or timeout connect-timeout read-timeout write-timeout)
-      (.setConnectTimeout c (or timeout connect-timeout) TimeUnit/MILLISECONDS)
-      (.setReadTimeout c read-timeout TimeUnit/MILLISECONDS)
+    (if-let [i (or timeout connect-timeout)]
+      (.setConnectTimeout c i TimeUnit/MILLISECONDS))
+    (if read-timeout
+      (.setReadTimeout c read-timeout TimeUnit/MILLISECONDS))
+    (if write-timeout
       (.setWriteTimeout c write-timeout TimeUnit/MILLISECONDS))
     (.enqueue ca (create-callback req m))
     (OkHTTPRequestHandler. ca (:handler m) m)))
