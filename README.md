@@ -1,8 +1,8 @@
- Happy [![License](http://img.shields.io/badge/license-EPL-blue.svg?style=flat)](https://www.eclipse.org/legal/epl-v10.html)
+# Happy [![License](http://img.shields.io/badge/license-EPL-blue.svg?style=flat)](https://www.eclipse.org/legal/epl-v10.html)
 
 [Usage](#usage) | [Interceptor](#interceptor) | [Representor](#representor)
 
-[![Clojars Project](http://clojars.org/happy/latest-version.svg)](http://clojars.org/happy).
+# [![Clojars Project](http://clojars.org/happy/latest-version.svg)](http://clojars.org/happy).
 
 An asynchronous Clojure(Script) HTTP client with swappable implementation.
 
