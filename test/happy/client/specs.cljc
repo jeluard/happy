@@ -7,6 +7,6 @@
 (defn specs
   [c]
   (testing "Simple request"
-    (is (not (nil? (h/send! {:method :get :url "http://google.com"} {:client c}))))
-    (is (not (nil? (h/send! {:method :put :url "http://www.mocky.io/v2/5185415ba171ea3a00704eed"
+    (is (not (nil? (h/send! {:method "GET" :url "http://google.com"} {:client c}))))
+    (is (not (nil? (h/send! {:method "PUT" :url "http://www.mocky.io/v2/5185415ba171ea3a00704eed"
                              :body "payload" :headers {"content-type" "text/text"}} {:client c}))))))

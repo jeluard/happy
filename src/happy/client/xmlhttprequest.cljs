@@ -18,8 +18,6 @@
   (let [headers (string/replace s #"\n$" "")]
     (reduce reduce-headers {} (string/split-lines headers))))
 
-(defn method->string [k] (string/upper-case (name k)))
-
 (defn progress-details
   [evt]
   (if (.-lengthComputable evt)
@@ -47,13 +45,12 @@
 (defn send!
   [{:keys [url method headers body]} {:keys [handler with-credentials? timeout report-progress? response-body-as] :as m}]
   (let [xhr (js/XMLHttpRequest.)
-        rh (XHRResponseHandler. xhr)
-        s (method->string method)]
+        rh (XHRResponseHandler. xhr)]
     (if with-credentials? (set! (.-withCredentials xhr) true))
     (if (and response-body-as (not= response-body-as :string))
       (set! (.-responseType xhr) (response-type response-body-as)))
     (if timeout (set! (.-timeout xhr) timeout))
-    (.open xhr s url true)
+    (.open xhr method url true)
     (doseq [[k v] headers]
       (.setRequestHeader xhr k v))
     (when handler

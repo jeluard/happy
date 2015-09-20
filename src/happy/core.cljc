@@ -47,12 +47,6 @@
 
 ; Utils methods for Client implementations
 
-(defn get-option
-  ([m t]
-   (or (t m) (t @default-options)))
-  ([m t f]
-   (f (t m) (t @default-options))))
-
 (defn apply-interceptors
   [m om v]
   (if v
@@ -91,9 +85,9 @@
 (defn validate-request!
   [req]
   (let [met (:method req)]
-    (if (and (#{:post :put :patch} met) (nil? (:body req)))
+    (if (and (#{"POST" "PUT" "PATCH"} met) (nil? (:body req)))
       (throw (ex-info (str "Method " met " requires a body" ) req)))
-    (if (and (#{:get :head :options} met) (not (nil? (:body req))))
+    (if (and (#{"GET" "HEAD" "OPTIONS"} met) (not (nil? (:body req))))
       (throw (ex-info (str "Method " met " requires no body" ) {}))))
   (if-not (every? #(and (string? (key %)) (string? (val %))) (:headers req))
     (throw (ex-info "Headers must be a String / String map" {}))))
@@ -123,43 +117,43 @@
   ([url] (GET url {}))
   ([url hm] (GET url hm nil))
   ([url hm m]
-   (send! {:method :get :url url :headers hm} m)))
+   (send! {:method "GET" :url url :headers hm} m)))
 
 (defn HEAD
   ([url] (HEAD url {}))
   ([url hm] (HEAD url hm nil))
   ([url hm m]
-   (send! {:method :head :url url :headers hm} m)))
+   (send! {:method "HEAD" :url url :headers hm} m)))
 
 (defn POST
   ([url b] (POST url {} b))
   ([url hm b] (POST url hm b nil))
   ([url hm b m]
-   (send! {:method :post :url url :headers hm :body b} m)))
+   (send! {:method "POST" :url url :headers hm :body b} m)))
 
 (defn PUT
   ([url b] (PUT url {} b))
   ([url hm b] (PUT url hm b nil))
   ([url hm b m]
-   (send! {:method :put :url url :headers hm :body b} m)))
+   (send! {:method "PUT" :url url :headers hm :body b} m)))
 
 (defn PATCH
   ([url b] (PATCH url {} b))
   ([url hm b] (PATCH url hm b nil))
   ([url hm b m]
-   (send! {:method :patch :url url :headers hm :body b} m)))
+   (send! {:method "PATCH" :url url :headers hm :body b} m)))
 
 (defn DELETE
   ([url] (DELETE url {}))
   ([url hm] (DELETE url hm nil))
   ([url hm m]
-   (send! {:method :delete :url url :headers hm} m)))
+   (send! {:method "DELETE" :url url :headers hm} m)))
 
 (defn OPTIONS
   ([url] (OPTIONS url {}))
   ([url hm] (OPTIONS url hm nil))
   ([url hm m]
-   (send! {:method :options :url url :headers hm} m)))
+   (send! {:method "OPTIONS" :url url :headers hm} m)))
 
 ; Setup default options
 (merge-options!

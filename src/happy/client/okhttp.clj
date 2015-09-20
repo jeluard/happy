@@ -16,8 +16,6 @@
 ; request: https://gist.github.com/lnikkila/d1a4446b93a0185b0969
 ; response: https://github.com/square/okhttp/blob/master/samples/guide/src/main/java/com/squareup/okhttp/recipes/Progress.java
 
-(defn method->string [k] (string/upper-case (name k)))
-
 (def ^:const ba (type (byte-array [])))
 (defn- byte-array? [o] (instance? ba o))
 
@@ -38,7 +36,7 @@
     (.url b ^String url)
     (doseq [[^String k ^String v] headers]
       (.addHeader b k v))
-    (.method b (method->string method) (if body (create-body headers body)))
+    (.method b method (if body (create-body headers body)))
     (.build b)))
 
 (defn exception->termination
