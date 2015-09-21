@@ -105,6 +105,9 @@ Options can also be set globally (stored in `happy.core/default-options`) using 
 ## Interceptor
 
 Interceptors allow users to modify request and response part of an HTTP call. Interceptors are simple function returning their argument eventually modified and are applied in order.
+
+`happy` bundles a couple [interceptors](https://github.com/jeluard/happy/blob/master/src/happy/interceptors.cljc).
+
 A request interceptor is specified via `:request-interceptors` and receive as argument a sequence of the request map and the options map.
 A response interceptor is specified via `:response-interceptors` and receive as argument the response map.
 
@@ -113,10 +116,34 @@ A response interceptor is specified via `:response-interceptors` and receive as 
   (:require [happy.core :as h :refer [GET]]
             [happy.client.xmlhttprequest :as hc]))
 
+(defn dump-request
+  [[req om :as m]]
+  (println "Request: " req)
+  m)
+
 (h/set-default-client! (hc/create))
-(h/merge-options! {:request-interceptors [(fn [[req om :as m]] (println "Request: " m) m)]})
+(h/merge-options! {:request-interceptors [dump-request]})
 
 (GET "http://google.com")
+```
+
+`options` can be modified in a request interceptor. This allows for instance to generate per call response interceptor, like in this timing interceptor:
+
+```clojure
+(ns my.app
+  (:require [happy.core :as h :refer [GET]]
+            [happy.client.xmlhttprequest :as hc]))
+
+(defn now [] (System/currentTimeMillis))
+(defn timing-interceptor
+  [[_ om :as v]]
+  (let [i (now)]
+    (assoc v 1 (update om :response-interceptors #(cons %2 %1) (fn [m _] (assoc m :timing (- (now) i)))))))
+
+(h/set-default-client! (hc/create))
+(h/merge-options! {:request-interceptors [timing-interceptor]})
+
+(GET "http://google.com" {:handler #(println "Executed in " (:timing %) "ms")})
 ```
 
 ## Representor
@@ -126,7 +153,7 @@ Representors encapsulate the logic of converting HTTP body between the user and 
 To have a representor used automatically as part of the HTTP call it must be defined as an interceptor using respectively the `request-interceptors` and `response-interceptors` options. `happy.representors/as-request-interceptor` and `happy.representors/as-response-interceptor` helps defining them.
 Representors as interceptors are automatically applied based on request / response `content-type` and will replace `:body` with the result of their invocation.
 
-Default representor for `json`, `transit`  and other common mime types are available and defined by default (see **src/happy/representor**).
+Default representor for `json`, `transit`  and other common mime types are available and defined by [default](https://github.com/jeluard/happy/tree/master/src/happy/representor).
 
 ## License
 
