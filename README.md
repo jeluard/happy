@@ -68,7 +68,7 @@ Helper functions for common verbs are provided to simplify common calls.
 (h/set-default-client! (hc/create))
 
 (GET "http://google.com" {:handler #(println "received " %)})
-(PUT "http://my-app.com" {:data "some payload"} {:handler #(println "received " %)})
+(PUT "http://my-app.com" {:data "some payload"})
 ```
 
 ### Options
@@ -92,7 +92,7 @@ Options can also be set globally (stored in `happy.core/default-options`) using 
 
 ```clojure
 (ns my.app
-  (:require [happy.core :as h :refer [GET PUT]]
+  (:require [happy.core :as h :refer [GET]]
             [happy.client.xmlhttprequest :as hc]))
 
 (h/set-default-client! (hc/create))
