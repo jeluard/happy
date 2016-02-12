@@ -1,5 +1,6 @@
 (ns happy.core
   (:require [happy.representors :as repr]
+            [happy.representor.edn :as repre]
             [happy.representor.json :as reprj]))
 
 (defprotocol Client
@@ -25,7 +26,7 @@
 
 (defn default-option-combiner
   [r l]
-  "Combines seq by concatening them.
+  "Combines seq by concatening them and map by merging them.
    For all others types the new value takes precedence."
   (cond
     (sequential? l) (concat l r)
@@ -36,6 +37,12 @@
   ([m] (merge-options! m default-option-combiner))
   ([m f]
    (swap-options! #(merge-with f %1 %2) m)))
+
+(defn merge-representors
+  [rqs rps]
+  (merge-options!
+    {:request-interceptors [(repr/as-request-interceptor rqs)]
+     :response-interceptors [(repr/as-response-interceptor rps)]}))
 
 (defn reset-options!
   []
@@ -164,6 +171,6 @@
    (send! {:method "OPTIONS" :url url :headers hm} m)))
 
 ; Setup default options
-(merge-options!
-  {:request-interceptors [(repr/as-request-interceptor [(reprj/create) repr/text-representor repr/binary-representor])]
-   :response-interceptors [(repr/as-response-interceptor [(reprj/create) repr/text-representor repr/binary-representor])]})
+(merge-representors
+  [(repre/create) (reprj/create) repr/text-representor repr/binary-representor]
+  [(repre/create) (reprj/create) repr/text-representor repr/binary-representor])

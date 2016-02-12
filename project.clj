@@ -7,13 +7,13 @@
                  ; Optional dependencies
                  [com.squareup.okhttp/okhttp "2.5.0" :scope "provided"]
                  [cheshire "5.5.0" :scope "provided"]
-                 [com.cognitect/transit-clj "0.8.281" :scope "provided" :exclusions [org.msgpack/msgpack]]
-                 [com.cognitect/transit-cljs "0.8.225" :scope "provided"]]
+                 [com.cognitect/transit-clj "0.8.285" :scope "provided" :exclusions [org.msgpack/msgpack]]
+                 [com.cognitect/transit-cljs "0.8.237" :scope "provided"]]
   :profiles {:dev
-             {:dependencies [[org.clojure/clojurescript "1.7.48"]]
+             {:dependencies [[org.clojure/clojurescript "1.7.170"]]
               :source-paths ["src" "examples/src"]
-              :plugins [[lein-cljsbuild "1.0.5"]
-                        [lein-doo "0.1.4"]]}}
+              :plugins [[lein-cljsbuild "1.1.2"]
+                        [lein-doo "0.1.6"]]}}
   :cljsbuild
   {:builds
    {:test {:source-paths ["src" "test"]
