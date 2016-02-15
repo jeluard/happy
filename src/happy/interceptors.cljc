@@ -14,4 +14,4 @@
 (defn timing-interceptor
   [[_ om :as v]]
   (let [i (now)]
-    (assoc v 1 (update om :response-interceptors #(cons %2 %1) (fn [m _] (assoc m :timing (- (now) i)))))))
+    (assoc v 1 (update om :response-interceptors #(cons %2 %1) (fn [resp _] (assoc resp :timing (- (now) i)))))))

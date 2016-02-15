@@ -55,18 +55,18 @@
 ; Utils methods for Client implementations
 
 (defn apply-interceptors
-  [o v]
+  [f o v]
   (if v
-    (reduce (fn [o f] (f o)) o v)
+    (reduce #(let [r (f %1 %2)] (or r %1)) o v)
     o))
 
 (defn apply-request-interceptors
   [req om]
-  (apply-interceptors [req om] (:request-interceptors om)))
+  (apply-interceptors (fn [o f] (f o)) [req om] (:request-interceptors om)))
 
 (defn apply-response-interceptors
   [resp om]
-  (apply-interceptors resp (:response-interceptors om)))
+  (apply-interceptors (fn [o f] (f o om)) resp (:response-interceptors om)))
 
 (defn progress
   ([t] (progress t nil))

@@ -18,31 +18,23 @@
   (some #(if (valid? % s) r) (-mime-types r)))
 
 (defn matching-representor
-  [m v]
-  (if-let [ct (hea/content-type (:headers m))]
-    (some #(valid-for-mime? (first ct) %) v)))
-
-(defn serialize
-  [r o]
-  (-serialize r o))
+  [req v mt]
+  (if-let [ct (or mt (first (hea/content-type (:headers req))))]
+    (some #(valid-for-mime? ct %) v)))
 
 (defn as-request-interceptor
   [v]
-  (fn [[req _ :as o]]
-    (if-let [r (matching-representor req v)]
-      (assoc o 0 (update req :body #(serialize r %)))
-      o)))
-
-(defn unserialize
-  [r o]
-  (-unserialize r o))
+  (fn [[req om :as o]]
+    (if (contains? req :body)
+      (if-let [r (matching-representor req v (:override-request-mime-type om))]
+        (assoc o 0 (update req :body #(-serialize r %)))))))
 
 (defn as-response-interceptor
   [v]
-  (fn [resp]
-    (if-let [r (matching-representor resp v)]
-      (update resp :body #(unserialize r %))
-      resp)))
+  (fn [resp om]
+    (if (contains? resp :body)
+      (if-let [r (matching-representor resp v (:override-response-mime-type om))]
+        (update resp :body #(-unserialize r %))))))
 
 (def binary-representor
   (reify Representator
