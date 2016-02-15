@@ -1,5 +1,6 @@
 (ns happy.representor.json
-  (:require [happy.representors :refer [Representator]]
+  (:require [happy.core :as core]
+            [happy.representors :refer [Representator]]
             #?(:clj [cheshire.core :as che])))
 
 (defn serialize
@@ -19,3 +20,8 @@
      (-mime-types [_] #{"application/json"})
      (-serialize [_ o] (serialize o))
      (-unserialize [_ s] (unserialize s keywordize-keys?)))))
+
+(defn merge-representors!
+  [keywordize-keys?]
+  (core/merge-representors!
+    [(create keywordize-keys?)]))

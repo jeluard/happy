@@ -1,7 +1,6 @@
 (ns happy.core
   (:require [happy.representors :as repr]
-            [happy.representor.edn :as repre]
-            [happy.representor.json :as reprj]))
+            [happy.representor.edn :as repre]))
 
 (defprotocol Client
   (-supports [_])
@@ -38,11 +37,11 @@
   ([m f]
    (swap-options! #(merge-with f %1 %2) m)))
 
-(defn merge-representors
-  [rqs rps]
+(defn merge-representors!
+  [v]
   (merge-options!
-    {:request-interceptors [(repr/as-request-interceptor rqs)]
-     :response-interceptors [(repr/as-response-interceptor rps)]}))
+    {:request-interceptors [(repr/as-request-interceptor v)]
+     :response-interceptors [(repr/as-response-interceptor v)]}))
 
 (defn reset-options!
   []
@@ -171,6 +170,5 @@
    (send! {:method "OPTIONS" :url url :headers hm} m)))
 
 ; Setup default options
-(merge-representors
-  [(repre/create) (reprj/create) repr/text-representor repr/binary-representor]
-  [(repre/create) (reprj/create) repr/text-representor repr/binary-representor])
+(merge-representors!
+  [(repre/create) repr/text-representor repr/binary-representor])

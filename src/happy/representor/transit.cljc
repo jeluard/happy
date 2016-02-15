@@ -30,3 +30,8 @@
     (-mime-types [_] #{"application/transit+json"})
     (-serialize [_ o] (serialize o))
     (-unserialize [_ s] (unserialize s))))
+
+(defn merge-representors!
+  []
+  (core/merge-representors!
+    [(create)]))
