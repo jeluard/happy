@@ -1,5 +1,6 @@
 (ns happy.core
-  (:require [happy.representors :as repr]
+  (:require [clojure.string :as string]
+            [happy.representors :as repr]
             [happy.representor.edn :as repre]))
 
 (defprotocol Client
@@ -118,14 +119,23 @@
           (throw (ex-info (str "Unsupported :response-body-as : " as) {:m m})))))
     (throw (ex-info "No :client set" {:m m}))))
 
+(defn normalize-request
+  [req]
+  (if (contains? req :headers)
+    (update req :headers
+      #(into {}
+        (for [[k v] %]
+          [(string/lower-case k) v])))
+    req))
+
 (defn send!
   [req m]
-  (let [f (or (:default-option-combiner m) (:default-option-combiner @default-options) default-option-combiner)
-        [req m] (apply-request-interceptors req (merge-with f @default-options m))
-        c (:client m)]
+  (let [req (normalize-request req)
+        f (or (:default-option-combiner m) (:default-option-combiner @default-options) default-option-combiner)
+        [req m] (apply-request-interceptors req (merge-with f @default-options m))]
     (validate-request! req)
     (validate-options! m)
-    (-send! c req m)))
+    (-send! (:client m) req m)))
 
 (defn GET
   ([url] (GET url {}))

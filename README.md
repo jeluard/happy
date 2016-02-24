@@ -150,13 +150,13 @@ A response interceptor is specified via `:response-interceptors` and receive as 
 
 Representors encapsulate the logic of converting HTTP body between the user and the client implementation. Custom representors can be provided by implementing the `happy.core/Representor` protocol.
 
-To have a representor used automatically as part of the HTTP call it must be defined using respectively the `request-interceptors` and `response-interceptors` options. `happy.representors/as-request-interceptor` and `happy.representors/as-response-interceptor` helps defining them.
+To have a representor used automatically as part of the HTTP call it must be defined using respectively the `request-interceptors` and `response-interceptors` options.
 Representors as interceptors are automatically applied based on request / response `content-type` and will replace `:body` with the result of their invocation. By specifying a mime-type via `override-request-mime-type` or `override-response-mime-type` a user can control with representor will be used.
 
-Default representor for `edn`, `json`, `transit`  and other common mime types are [available](https://github.com/jeluard/happy/tree/master/src/happy/representor).
+Default representor for `edn`, `json`, `transit`  and other common mime types are [available](https://github.com/jeluard/happy/tree/master/src/happy/representor) and can be setup using the `merge-representors!` function defined in their respective namespace.
 
 ## License
 
-Copyright (C) 2015 Julien Eluard
+Copyright (C) 2015-2016 Julien Eluard
 
 Distributed under the Eclipse Public License, the same as Clojure.
