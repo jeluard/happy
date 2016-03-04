@@ -19,39 +19,40 @@ A Clojure(Script) HTTP async client library with swappable implementation.
 
 (h/set-default-client! (hc/create))
 
-(let [c (h/send! {:method :get :url "http://google.com"} {:handler #(println "received " %)})]
+(let [c (h/send! {:method "GET" :url "http://google.com"} {:handler #(println "received " %)})]
   ; an HTTP call can be aborted
   (h/-abort c))
 ```
 
-A request map accepts following keys:
+A request map has the following shape:
 
-* `:method` an uppercase String identifying the HTTP method used
-* `:headers` a String/String map of key/value headers
-* `:body` a body payload whose type must match client implementation capacities
+```clojure
+{:method        "GET"       ; an uppercase String identifying the HTTP method used
+ :headers       {}          ; a String/String map of key/value headers
+ :body          ""          ; a body payload whose type must match client implementation capacities}
+```
 
-When called, the `:handler` function will receive as single argument a response map accepting following keys:
+When called, the `:handler` function will receive as single argument a response map with the following shape:
 
-* `:type` a keyword identifying the response: can be `:response`, `:progress` of `:failure`
+```clojure
+{:type          :response   ; a keyword identifying the response
+                            ; can be `:response`, `:progress` or `:failure`
 
-Depending on the `:type` value others keys are present.
+ ; if :type = :response
+ :status        200         ; an integer of the HTTP status code
+ :headers       {}          ; a String/(String or seq) map of key/value headers
+ :body          ""          ; a payload whose type depends on client implementation
 
-if `:type` is `:response`:
+ ; if :type = :progress
+ :direction     :sending    ; a keyword identifying if this is a `:receiving` or `:sending` progress
+ :loaded        10          ; an integer of the count of currently loaded bytes, optional
+ :total         150         ; an integer of total bytes, optional
 
-* `:status` an integer of the HTTP status code
-* `:headers` a String/(String or seq) map of key/value headers
-* `:body` a payload whose type depends on client implementation
-
-if `:type` is `:progress`:
-
-* `:type` a keyword identifying if this is a `:receiving` or `:sending` progress
-* `:loaded` an integer of the count of currently loaded bytes, optional
-* `:total` an integer of total bytes, optional
-
-if `:type` is `:failure`:
-
-* `:termination` a keyword whose value can be `:abort`, `:timeout` or `:network`
-* `:reason` a String detailing the failure, optional
+ ; if :type = :failure
+ :termination   :abort      ; a keyword whose value can be `:abort`, `:timeout` or `:network`
+ :reason        ""          ; a String detailing the failure, optional
+}
+```
 
 A handler is called only once per request with a `:type` of `:response` or `:failure`.
 If `:report-progress?` option is provided and the client implementation supports it `:handler` can be called a number of times with type `:progress`.
@@ -67,7 +68,7 @@ Helper functions for common verbs are provided to simplify common calls.
 
 (h/set-default-client! (hc/create))
 
-(GET "http://google.com" {:handler #(println "received " %)})
+(GET "http://google.com" {} {:handler #(println "received " %)})
 (PUT "http://my-app.com" {:data "some payload"})
 ```
 
@@ -143,7 +144,7 @@ A response interceptor is specified via `:response-interceptors` and receive as 
 (h/set-default-client! (hc/create))
 (h/merge-options! {:request-interceptors [timing-interceptor]})
 
-(GET "http://google.com" {:handler #(println "Executed in " (:timing %) "ms")})
+(GET "http://google.com" {} {:handler #(println "Executed in " (:timing %) "ms")})
 ```
 
 ## Representor

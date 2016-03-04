@@ -71,7 +71,7 @@
 (defn progress
   ([t] (progress t nil))
   ([t m]
-   (let [b {:type :progress :change t}]
+   (let [b {:type :progress :direction t}]
      (if m
        (merge b m)
        b))))
