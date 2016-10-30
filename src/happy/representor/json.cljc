@@ -22,6 +22,7 @@
      (-unserialize [_ s] (unserialize s keywordize-keys?)))))
 
 (defn merge-representors!
-  [keywordize-keys?]
-  (core/merge-representors!
-    [(create keywordize-keys?)]))
+  ([] (merge-representors! false))
+  ([keywordize-keys?]
+   (core/merge-representors!
+     [(create keywordize-keys?)])))
