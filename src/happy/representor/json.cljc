@@ -11,7 +11,7 @@
 (defn unserialize
   [s keywordize-keys?]
   #?(:clj (che/parse-string s keywordize-keys?)
-     :cljs (js->clj (.parse js/JSON s) {:keywordize-keys keywordize-keys?})))
+     :cljs (js->clj (.parse js/JSON s) :keywordize-keys keywordize-keys?)))
 
 (defn create
   ([] (create false))
